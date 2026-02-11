@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Be My Valentine?</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="hearts" aria-hidden="true"></div>
+  <div class="floating-hearts" id="floatingHearts" aria-hidden="true"></div>
+
+  <main class="card" id="card">
+    <h1>Will you be my Valentine?</h1>
+    <div class="buttons" id="buttonsArea">
+      <button class="btn yes" onclick="sayYes()">Yes</button>
+      <button class="btn no" id="noButton">No</button>
+    </div>
+    <p class="message" id="message"></p>
+
+    <section class="celebration" id="celebration" aria-live="polite">
+      <h2>Yay! You said YES! ❤️</h2>
+      <p>Best Valentine ever.</p>
+    </section>
+  </main>
+
+  <script>
+    const noButton = document.getElementById('noButton');
+    const buttonsArea = document.getElementById('buttonsArea');
+    const message = document.getElementById('message');
+    const celebration = document.getElementById('celebration');
+    const floatingHearts = document.getElementById('floatingHearts');
+    const card = document.getElementById('card');
+
+    function sayYes() {
+      message.textContent = '';
+      celebration.classList.add('show');
+      card.classList.add('yes-mode');
+      createHeartBurst(20);
+    }
+
+    function moveNoButton() {
+      const areaRect = buttonsArea.getBoundingClientRect();
+      const maxX = Math.max(0, areaRect.width - noButton.offsetWidth);
+      const maxY = Math.max(0, areaRect.height - noButton.offsetHeight);
+
+      const newX = Math.random() * maxX;
+      const newY = Math.random() * maxY;
+
+      noButton.style.position = 'absolute';
+      noButton.style.left = `${newX}px`;
+      noButton.style.top = `${newY}px`;
+    }
+
+    // Desktop pointer
+    noButton.addEventListener('mouseenter', moveNoButton);
+
+    // Mobile touch support
+    noButton.addEventListener('touchstart', function (e) {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
+
+    // If pointer gets close, also run away
+    document.addEventListener('pointermove', (e) => {
+      const rect = noButton.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + rect.width / 2);
+      const dy = e.clientY - (rect.top + rect.height / 2);
+      const distance = Math.hypot(dx, dy);
+      if (distance < 90) {
+        moveNoButton();
+      }
+    });
+
+    function spawnFloatingHeart() {
+      const heart = document.createElement('span');
+      heart.className = 'float-heart';
+      heart.textContent = '❤';
+      heart.style.left = `${Math.random() * 100}%`;
+      heart.style.animationDuration = `${4 + Math.random() * 4}s`;
+      heart.style.fontSize = `${14 + Math.random() * 22}px`;
+      floatingHearts.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 8200);
+    }
+
+    function createHeartBurst(count) {
+      for (let i = 0; i < count; i += 1) {
+        setTimeout(spawnFloatingHeart, i * 80);
+      }
+    }
+
+    setInterval(spawnFloatingHeart, 650);
+  </script>
+</body>
+</html>
